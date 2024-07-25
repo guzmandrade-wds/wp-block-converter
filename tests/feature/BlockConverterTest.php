@@ -9,15 +9,16 @@ namespace Alley\WP\Block_Block_Converter\Tests\Feature;
 
 use Alley\WP\Block_Converter\Block;
 use Alley\WP\Block_Converter\Block_Converter;
-use Alley\WP\Block_Converter\Tests\Test_Case;
 use DOMNode;
+use Mantle\Testing\Concerns\Prevent_Remote_Requests;
+use Mantle\Testkit\Test_Case;
 
 /**
  * Test case for Block Block_Converter Module.
  *
  * @group block
  */
-class Test_Block_Block_Converter extends Test_Case {
+class BlockConverterTest extends Test_Case {
 	public function test_convert_content_to_blocks() {
 		$html      = '<p>Content to migrate</p><h1>Heading 01</h1>';
 		$converter = new Block_Converter( $html );
