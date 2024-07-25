@@ -82,10 +82,10 @@ class BlockConverterTest extends Test_Case {
 				'<ul><li>Random content</li><li>Another random content</li></ul>',
 				'<!-- wp:list --><ul><li>Random content</li><li>Another random content</li></ul><!-- /wp:list -->',
 			],
-			// 'blockquote' => [
-			// 	'<blockquote><p>Lorem ipsum</p></blockquote>',
-			// 	'<!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>Lorem ipsum</p><!-- /wp:paragraph --></blockquote><!-- /wp:quote -->',
-			// ],
+			'blockquote' => [
+				'<blockquote><p>Lorem ipsum</p></blockquote>',
+				'<!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>Lorem ipsum</p><!-- /wp:paragraph --></blockquote><!-- /wp:quote -->',
+			],
 			'non-oembed-embed' => [
 				'<embed type="video/webm" src="/media/mr-arnold.mp4" width="250" height="200" />',
 				'<!-- wp:html --><embed type="video/webm" src="/media/mr-arnold.mp4" width="250" height="200"></embed><!-- /wp:html -->',

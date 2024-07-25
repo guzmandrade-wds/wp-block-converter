@@ -148,7 +148,32 @@ class Block_Converter {
 	 * @return Block|null
 	 */
 	protected function blockquote( DOMNode $node ): ?Block {
+		// Set the class on the node equal to wp-block-quote.
+		if ( $node instanceof DOMElement && empty( $node->getAttribute( 'class' ) ) ) {
+			$node->setAttribute( 'class', 'wp-block-quote' );
+		}
+
+		$children = '';
+
+		// Recursively convert the children of the blockquote to blocks.
+		foreach ( $node->childNodes as $child ) {
+			$child_block = $this->{$child->nodeName}( $child );
+
+			if ( ! empty( $child_block ) ) {
+				$children .= $this->minify_block( (string) $child_block );
+			}
+		}
+
+		// Replace the children with a placeholder that will be replaced with
+		// the children after the blockquote is converted to block.
+		if ( ! empty( $node->nodeValue ) ) {
+			$node->nodeValue = '__CHILDREN__';
+		}
+
 		$content = static::get_node_html( $node );
+
+		// Replace the closing blockquote tag with the children.
+		$content = str_replace( '__CHILDREN__', $children, $content );
 
 		if ( empty( $content ) ) {
 			return null;
