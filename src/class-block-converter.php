@@ -121,7 +121,7 @@ class Block_Converter {
 	public function convert_with_children( DOMNode $node ): string {
 		$children = '';
 
-		// Recursively convert the children of the blockquote to blocks.
+		// Recursively convert the children of the node.
 		foreach ( $node->childNodes as $child ) {
 			$child_block = $this->{$child->nodeName}( $child );
 
