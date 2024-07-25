@@ -174,15 +174,19 @@ class Block_Converter {
 			if ( \str_contains( $node->textContent, '//x.com' ) || \str_contains( $node->textContent, '//www.x.com' ) ) {
 				$node->textContent = str_replace( 'x.com', 'twitter.com', $node->textContent );
 			}
+
 			// Instagram and Facebook embeds require an api key to retrieve oEmbed data.
 			if ( \str_contains( $node->textContent, 'instagram.com' ) ) {
 				return $this->instagram_embed( $node->textContent );
 			}
+
 			if ( \str_contains( $node->textContent, 'facebook.com' ) ) {
 				return $this->facebook_embed( $node->textContent );
 			}
+
+			// Check if the URL is an oEmbed URL and return the oEmbed block if it is.
 			if ( false !== wp_oembed_get( $node->textContent ) ) {
-				return $this->embed( $node->textContent );
+				return $this->oembed( $node->textContent );
 			}
 		}
 
@@ -270,7 +274,7 @@ class Block_Converter {
 	 * @param string $url The URL.
 	 * @return Block
 	 */
-	protected function embed( string $url ): Block {
+	protected function oembed( string $url ): Block {
 		// This would probably be better as an internal request to /wp-json/oembed/1.0/proxy?url=...
 		$data = _wp_oembed_get_object()->get_data( $url, [] );
 

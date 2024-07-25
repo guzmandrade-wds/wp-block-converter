@@ -280,6 +280,15 @@ https://www.tiktok.com/@atribecalledval/video/7348705314746699054
 		);
 	}
 
+	public function test_non_oembed_embed() {
+		$converter = new Block_Converter( '<embed type="video/webm" src="/media/mr-arnold.mp4" width="250" height="200" />' );
+
+		$this->assertEquals(
+			'<!-- wp:html --><embed type="video/webm" src="/media/mr-arnold.mp4" width="250" height="200"></embed><!-- /wp:html -->',
+			$converter->convert(),
+		);
+	}
+
 	public function test_macroable() {
 		Block_Converter::macro(
 			'special-tag',
