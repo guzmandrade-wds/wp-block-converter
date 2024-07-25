@@ -113,6 +113,34 @@ class Block_Converter {
 	}
 
 	/**
+	 * Convert the children of a node to blocks.
+	 *
+	 * @param DOMNode $node The node.
+	 * @return string The children as blocks.
+	 */
+	public function convert_with_children( DOMNode $node ): string {
+		$children = '';
+
+		// Recursively convert the children of the node.
+		foreach ( $node->childNodes as $child ) {
+			$child_block = $this->{$child->nodeName}( $child );
+
+			if ( ! empty( $child_block ) ) {
+				$children .= $this->minify_block( (string) $child_block );
+			}
+		}
+
+		$node->nodeValue = '__CHILDREN__';
+
+		$content = static::get_node_html( $node );
+
+		// Replace the placeholder with the children.
+		$content = str_replace( '__CHILDREN__', $children, $content );
+
+		return $content;
+	}
+
+	/**
 	 * Magic function to convert to a string.
 	 */
 	public function __toString(): string {
@@ -148,7 +176,12 @@ class Block_Converter {
 	 * @return Block|null
 	 */
 	protected function blockquote( DOMNode $node ): ?Block {
-		$content = static::get_node_html( $node );
+		// Set the class on the node equal to wp-block-quote.
+		if ( $node instanceof DOMElement && empty( $node->getAttribute( 'class' ) ) ) {
+			$node->setAttribute( 'class', 'wp-block-quote' );
+		}
+
+		$content = $this->convert_with_children( $node );
 
 		if ( empty( $content ) ) {
 			return null;
@@ -174,15 +207,19 @@ class Block_Converter {
 			if ( \str_contains( $node->textContent, '//x.com' ) || \str_contains( $node->textContent, '//www.x.com' ) ) {
 				$node->textContent = str_replace( 'x.com', 'twitter.com', $node->textContent );
 			}
+
 			// Instagram and Facebook embeds require an api key to retrieve oEmbed data.
 			if ( \str_contains( $node->textContent, 'instagram.com' ) ) {
 				return $this->instagram_embed( $node->textContent );
 			}
+
 			if ( \str_contains( $node->textContent, 'facebook.com' ) ) {
 				return $this->facebook_embed( $node->textContent );
 			}
+
+			// Check if the URL is an oEmbed URL and return the oEmbed block if it is.
 			if ( false !== wp_oembed_get( $node->textContent ) ) {
-				return $this->embed( $node->textContent );
+				return $this->oembed( $node->textContent );
 			}
 		}
 
@@ -270,7 +307,7 @@ class Block_Converter {
 	 * @param string $url The URL.
 	 * @return Block
 	 */
-	protected function embed( string $url ): Block {
+	protected function oembed( string $url ): Block {
 		// This would probably be better as an internal request to /wp-json/oembed/1.0/proxy?url=...
 		$data = _wp_oembed_get_object()->get_data( $url, [] );
 

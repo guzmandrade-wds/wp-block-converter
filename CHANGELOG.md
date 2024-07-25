@@ -2,6 +2,11 @@
 
 All notable changes to `WP Block Converter` will be documented in this file.
 
+## 1.4.0
+
+- Drops support for PHP 8.0.
+- Fixes issue with `<embed>` elements.
+
 ## 1.3.2
 
 - Preserve new lines in embed blocks. They are required for proper front end rendering.
