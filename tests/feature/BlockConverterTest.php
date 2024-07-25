@@ -12,13 +12,26 @@ use Alley\WP\Block_Converter\Block_Converter;
 use DOMNode;
 use Mantle\Testing\Concerns\Prevent_Remote_Requests;
 use Mantle\Testkit\Test_Case;
+use PHPUnit\Framework\Attributes\Group;
+
+use function Mantle\Testing\mock_http_response;
 
 /**
  * Test case for Block Block_Converter Module.
- *
- * @group block
  */
+#[Group( 'block' )]
 class BlockConverterTest extends Test_Case {
+	use Prevent_Remote_Requests;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->fake_request( [
+			'https://publish.twitter.com/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Ftwitter.com%2Falleyco%2Fstatus%2F1679189879086018562&dnt=1&format=json' => mock_http_response()->with_json( '{"url":"https:\/\/twitter.com\/alleyco\/status\/1679189879086018562","author_name":"Alley","author_url":"https:\/\/twitter.com\/alleyco","html":"\u003Cblockquote class=\"twitter-tweet\" data-width=\"500\" data-dnt=\"true\"\u003E\u003Cp lang=\"en\" dir=\"ltr\"\u003EWe’re a full-service digital agency with the foresight, perspective, and grit to power your brightest ideas and build solutions for your most evasive problems. Learn more about our services here:\u003Ca href=\"https:\/\/t.co\/8zZ5zP1Oyc\"\u003Ehttps:\/\/t.co\/8zZ5zP1Oyc\u003C\/a\u003E\u003C\/p\u003E&mdash; Alley (@alleyco) \u003Ca href=\"https:\/\/twitter.com\/alleyco\/status\/1679189879086018562?ref_src=twsrc%5Etfw\"\u003EJuly 12, 2023\u003C\/a\u003E\u003C\/blockquote\u003E\n\u003Cscript async src=\"https:\/\/platform.twitter.com\/widgets.js\" charset=\"utf-8\"\u003E\u003C\/script\u003E\n\n","width":500,"height":null,"type":"rich","cache_age":"3153600000","provider_name":"Twitter","provider_url":"https:\/\/twitter.com","version":"1.0"}' ),
+			'https://www.tiktok.com/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fwww.tiktok.com%2F%40atribecalledval%2Fvideo%2F7348705314746699054&dnt=1&format=json' => mock_http_response()->with_json( '{"version":"1.0","type":"video","title":"Andre 3000 performing at Luna Luna was such an incredible night. I will never forget this night. #losangeles #andre3000 #fyp #foryou #foryoupage ","author_url":"https://www.tiktok.com/@atribecalledval","author_name":"Valeria Cardona","width":"100%","height":"100%","html":"<blockquote class=\"tiktok-embed\" cite=\"https://www.tiktok.com/@atribecalledval/video/7348705314746699054\" data-video-id=\"7348705314746699054\" data-embed-from=\"oembed\" style=\"max-width:605px; min-width:325px;\"> <section> <a target=\"_blank\" title=\"@atribecalledval\" href=\"https://www.tiktok.com/@atribecalledval?refer=embed\">@atribecalledval</a> <p>Andre 3000 performing at Luna Luna was such an incredible night. I will never forget this night. <a title=\"losangeles\" target=\"_blank\" href=\"https://www.tiktok.com/tag/losangeles?refer=embed\">#losangeles</a> <a title=\"andre3000\" target=\"_blank\" href=\"https://www.tiktok.com/tag/andre3000?refer=embed\">#andre3000</a> <a title=\"fyp\" target=\"_blank\" href=\"https://www.tiktok.com/tag/fyp?refer=embed\">#fyp</a> <a title=\"foryou\" target=\"_blank\" href=\"https://www.tiktok.com/tag/foryou?refer=embed\">#foryou</a> <a title=\"foryoupage\" target=\"_blank\" href=\"https://www.tiktok.com/tag/foryoupage?refer=embed\">#foryoupage</a> </p> <a target=\"_blank\" title=\"♬ I swear, I Really Wanted To Make A\" href=\"https://www.tiktok.com/music/I-swear-I-Really-Wanted-To-Make-A-Rap-Album-But-This-Is-Literally-The-Way-The-Wind-Blew-Me-This-Time-7302364812792547330?refer=embed\">♬ I swear, I Really Wanted To Make A \"Rap\" Album But This Is Literally The Way The Wind Blew Me This Time - André 3000</a> </section> </blockquote> <script async src=\"https://www.tiktok.com/embed.js\"></script>","thumbnail_width":576,"thumbnail_height":1024,"thumbnail_url":"https://p19-pu-sign-useast8.tiktokcdn-us.com/obj/tos-useast5-p-0068-tx/afac3ae6ea3343c890e12e3cbbca1218_1711003872?lk3s=b59d6b55&nonce=81617&refresh_token=bf81ce66fb4d648cbd499791f37a6354&x-expires=1722110400&x-signature=tpTiBYwvSXjjAEgNRU2F%2BUAz7jo%3D&shp=b59d6b55&shcp=-","provider_url":"https://www.tiktok.com","provider_name":"TikTok","author_unique_id":"atribecalledval","embed_product_id":"7348705314746699054","embed_type":"video"}' ),
+		] );
+	}
+
 	public function test_convert_content_to_blocks() {
 		$html      = '<p>Content to migrate</p><h1>Heading 01</h1>';
 		$converter = new Block_Converter( $html );
