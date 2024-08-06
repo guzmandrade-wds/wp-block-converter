@@ -12,6 +12,7 @@ use Alley\WP\Block_Converter\Block_Converter;
 use DOMNode;
 use Mantle\Testing\Concerns\Prevent_Remote_Requests;
 use Mantle\Testkit\Test_Case;
+use Mantle\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -267,5 +268,33 @@ https://www.tiktok.com/@atribecalledval/video/7348705314746699054
 			'<!-- wp:paragraph {"attribute":"123"} --><special-tag>content here</special-tag><!-- /wp:paragraph -->',
 			$block,
 		);
+	}
+
+	#[DataProvider( 'nested_image_dataprovider' )]
+	public function test_nested_image( string $html, string $expected ) {
+		$this->fake_request( 'https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png' )
+			->with_file( __DIR__ . '/../fixtures/image.png' );
+
+		$block = ( new Block_Converter( $html ) )->convert();
+
+		$this->assertRequestSent( 'https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png', 1 );
+		$this->assertTrue( Str::is( $expected, $block ) );
+	}
+
+	public static function nested_image_dataprovider(): array {
+		return [
+			'image wrapped with figure/a' => [
+				'<figure class="wp-block-image size-large"><a href="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png"><img decoding="async" loading="lazy" width="786" height="672" src="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png?w=786" alt="" class="wp-image-5962"></a></figure>',
+				'<!-- wp:image --><figure class="wp-block-image"><a href="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM-*.png"><img src="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png?w=786" alt="" class="wp-image-5962"/></a></figure><!-- /wp:image -->'
+			],
+			'image wrapped with a' => [
+				'<a href="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png"><img decoding="async" loading="lazy" width="786" height="672" src="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png?w=786" alt="" class="wp-image-5962"></a>',
+				'<!-- wp:image --><figure class="wp-block-image"><a href="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM-*.png"><img src="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png?w=786" alt="" class="wp-image-5962"/></a></figure><!-- /wp:image -->',
+			],
+			'image not wrapped' => [
+				'<img decoding="async" loading="lazy" width="786" height="672" src="https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png?w=786" alt="" class="wp-image-5962">',
+				'<!-- wp:image --><figure class="wp-block-image"><img src="http://example.org/wp-content/uploads/2024/08/Screen-Shot-2022-01-19-at-2.51.37-PM-*.png" alt=""/></figure><!-- /wp:image -->',
+			],
+		];
 	}
 }
