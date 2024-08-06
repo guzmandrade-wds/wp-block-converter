@@ -289,8 +289,6 @@ class Block_Converter {
 	 * @return Block|null
 	 */
 	protected function p( DOMNode $node ): ?Block {
-		// Account for some specific edge cases.
-		// Use case 1: image wrapped with an anchor tag. This should be converted to an image block.
 		if ( $this->is_anchor_wrapped_image( $node ) ) {
 			return $this->img( $node );
 		}
