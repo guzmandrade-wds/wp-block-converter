@@ -20,7 +20,7 @@ use Mantle\Support\Traits\Macroable;
  * Mirrors the `htmlToBlocks()`/`rawHandler()` from the `@wordpress/blocks` package.
  */
 class Block_Converter {
-	use Macroable {
+	use Concerns\Listens_For_Attachments, Macroable {
 		__call as macro_call;
 	}
 
@@ -38,6 +38,8 @@ class Block_Converter {
 	 * @return string The HTML.
 	 */
 	public function convert(): string {
+		$this->listen_for_attachment_creation();
+
 		// Get tags from the html.
 		$content = static::get_node_tag_from_html( $this->html );
 
@@ -86,7 +88,11 @@ class Block_Converter {
 		 * @param string        $html    HTML converted into Gutenberg blocks.
 		 * @param DOMNodeList $content The original DOMNodeList.
 		 */
-		return trim( (string) apply_filters( 'wp_block_converter_document_html', $html, $content ) );
+		$html = trim( (string) apply_filters( 'wp_block_converter_document_html', $html, $content ) );
+
+		$this->detach_attachment_creation_listener();
+
+		return $html;
 	}
 
 	/**

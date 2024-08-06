@@ -61,6 +61,24 @@ add_filter( 'wp_block_converter_document_html', function( string $blocks, \DOMNo
 }, 10, 2 );
 ```
 
+### Attachment Parents
+
+When converting HTML to blocks, you may need to attach the images that were
+sideloaded to a post parent. After the HTML is converted to blocks, you can get
+the attachment IDs that were created or simply attach them to a post.
+
+```php
+$converter = new Block_Converter( '<p>Some HTML <img src="https://example.org/" /></p>' );
+$blocks = $converter->convert();
+
+// Get the attachment IDs that were created.
+$attachment_ids = $converter->get_created_attachment_ids();
+
+// Attach the images to a post.
+$parent_id = 123;
+$converter->assign_parent_to_attachments( $parent_id );
+```
+
 ### Extending the Converter with Macros
 
 You can extend the converter with macros to add custom tags that are not yet

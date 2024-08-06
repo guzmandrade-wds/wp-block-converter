@@ -275,8 +275,10 @@ https://www.tiktok.com/@atribecalledval/video/7348705314746699054
 		$this->fake_request( 'https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png' )
 			->with_file( __DIR__ . '/../fixtures/image.png' );
 
-		$block = ( new Block_Converter( $html ) )->convert();
+		$converter = new Block_Converter( $html );
+		$block     = $converter->convert();
 
+		$this->assertCount( 1, $converter->get_created_attachment_ids() );
 		$this->assertRequestSent( 'https://alley.com/wp-content/uploads/2022/01/Screen-Shot-2022-01-19-at-2.51.37-PM.png', 1 );
 		$this->assertTrue( Str::is( $expected, $block ) );
 	}
