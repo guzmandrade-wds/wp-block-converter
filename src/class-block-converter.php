@@ -16,6 +16,8 @@ use Mantle\Support\Traits\Macroable;
 
 /**
  * Converts a DOMDocument to Gutenberg block HTML.
+ *
+ * Mirrors the `htmlToBlocks()`/`rawHandler()` from the `@wordpress/blocks` package.
  */
 class Block_Converter {
 	use Macroable {
