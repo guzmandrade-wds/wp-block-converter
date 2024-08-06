@@ -13,6 +13,7 @@ use DOMElement;
 use DOMNode;
 use Exception;
 use Mantle\Support\Traits\Macroable;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -30,9 +31,14 @@ class Block_Converter {
 	/**
 	 * Setup the class.
 	 *
+	 * @throws RuntimeException If WordPress is not loaded.
+	 *
 	 * @param string $html The HTML to parse.
 	 */
 	public function __construct( public string $html ) {
+		if ( ! function_exists( 'do_action' ) ) {
+			throw new RuntimeException( 'WordPress must be loaded to use the Block_Converter class.' );
+		}
 	}
 
 	/**
