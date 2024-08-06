@@ -1,7 +1,6 @@
 # WP Block Converter
 
-[![Coding Standards](https://github.com/alleyinteractive/wp-block-converter/actions/workflows/coding-standards.yml/badge.svg)](https://github.com/alleyinteractive/wp-block-converter/actions/workflows/coding-standards.yml)
-[![Testing Suite](https://github.com/alleyinteractive/wp-block-converter/actions/workflows/unit-test.yml/badge.svg)](https://github.com/alleyinteractive/wp-block-converter/actions/workflows/unit-test.yml)
+[![Testing Suite](https://github.com/alleyinteractive/wp-block-converter/actions/workflows/all-pr-tests.yml/badge.svg)](https://github.com/alleyinteractive/wp-block-converter/actions/workflows/all-pr-tests.yml)
 
 Convert HTML into Gutenberg Blocks with PHP
 
@@ -13,9 +12,9 @@ You can install the package via Composer:
 composer require alleyinteractive/wp-block-converter
 ```
 
-This project is built to be used in a WordPress environment, so it is
-recommended to use this package in a WordPress plugin or theme. Using it in
-isolation is not supported at this time.
+This project is built to be used in a WordPress environment, so it is recommended to use this
+package in a WordPress plugin or theme. Using it in isolation is not supported at this time. This
+package does not use any NPM library such as `@wordpress/blocks` to convert HTML to blocks.
 
 ## Usage
 
@@ -26,7 +25,7 @@ use Alley\WP\Block_Converter\Block_Converter;
 
 $converter = new Block_Converter( '<p>Some HTML</p>' );
 
-$blocks = $converter->convert();
+$blocks = $converter->convert(); // Returns a string of converted blocks.
 ```
 
 ### Filtering the Blocks
