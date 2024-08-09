@@ -630,6 +630,8 @@ class Block_Converter {
 	 * @return Block|null
 	 */
 	protected function html( DOMNode $node ): ?Block {
+		$this->sideload_child_images( $node );
+
 		// Get the raw HTML.
 		$html = static::get_node_html( $node );
 
