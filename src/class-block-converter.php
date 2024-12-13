@@ -78,7 +78,7 @@ class Block_Converter {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param string        $html    HTML converted into Gutenberg blocks.
+		 * @param string      $html    HTML converted into Gutenberg blocks.
 		 * @param DOMNodeList $content The original DOMNodeList.
 		 */
 		$html = trim( (string) apply_filters( 'wp_block_converter_document_html', $html, $content ) );
@@ -94,9 +94,26 @@ class Block_Converter {
 	 * @param DOMNode $node The node to convert.
 	 * @return Block|null
 	 */
-	protected function convert_node( DOMNode $node ): ?Block {
+	public function convert_node( DOMNode $node ): ?Block {
 		if ( '#text' === $node->nodeName ) {
 			return null;
+		}
+
+		if ( static::has_macro( $node->nodeName ) ) {
+			$block = static::macro_call( $node->nodeName, [ $node ] );
+		} else {
+			$block = match ( strtolower( $node->nodeName ) ) {
+				'ul' => $this->ul( $node ),
+				'ol' => $this->ol( $node ),
+				'img' => $this->img( $node ),
+				'blockquote' => $this->blockquote( $node ),
+				'h1', 'h2', 'h3', 'h4', 'h5', 'h6' => $this->h( $node ),
+				'p', 'a', 'abbr', 'b', 'code', 'em', 'i', 'strong', 'sub', 'sup', 'span', 'u' => $this->p( $node ),
+				'figure' => $this->figure( $node ),
+				'br', 'cite', 'source' => null,
+				'hr' => $this->separator(),
+				default => $this->html( $node ),
+			};
 		}
 
 		/**
@@ -105,9 +122,9 @@ class Block_Converter {
 		 * @since 1.0.0
 		 *
 		 * @param Block|null $block The generated block object.
-		 * @param DOMNode   $node  The node being converted.
+		 * @param DOMNode    $node  The node being converted.
 		 */
-		$block = apply_filters( 'wp_block_converter_block', $this->{$node->nodeName}( $node ), $node );
+		$block = apply_filters( 'wp_block_converter_block', $block, $node );
 
 		if ( ! $block || ! $block instanceof Block ) {
 			return null;
@@ -178,32 +195,6 @@ class Block_Converter {
 				// Do nothing.
 			}
 		}
-	}
-
-	/**
-	 * Magic function to call parsers for specific HTML tags.
-	 *
-	 * @param string $name The tag name.
-	 * @param array  $arguments The DOMNode.
-	 * @return Block|null
-	 */
-	public function __call( $name, $arguments ): ?Block {
-		if ( static::has_macro( $name ) ) {
-			return static::macro_call( $name, $arguments );
-		}
-
-		return match ( $name ) {
-			'ul' => $this->ul( $arguments[0] ),
-			'ol' => $this->ol( $arguments[0] ),
-			'img' => $this->img( $arguments[0] ),
-			'blockquote' => $this->blockquote( $arguments[0] ),
-			'h1', 'h2', 'h3', 'h4', 'h5', 'h6' => $this->h( $arguments[0] ),
-			'p', 'a', 'abbr', 'b', 'code', 'em', 'i', 'strong', 'sub', 'sup', 'span', 'u' => $this->p( $arguments[0] ),
-			'figure' => $this->figure( $arguments[0] ),
-			'br', 'cite', 'source' => null,
-			'hr' => $this->separator(),
-			default => $this->html( $arguments[0] ),
-		};
 	}
 
 	/**

@@ -3,6 +3,12 @@
 
 All notable changes to `WP Block Converter` will be documented in this file.
 
+## 1.5.1
+
+### Fixed
+
+- Fixed bug where macros can be used to modify/replace any tag.
+
 ## 1.5.0
 
 ### Added

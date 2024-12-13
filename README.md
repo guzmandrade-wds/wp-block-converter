@@ -106,7 +106,7 @@ use Alley\WP\Block_Converter\Block_Converter;
 use Alley\WP\Block_Converter\Block;
 
 Block_Converter::macro( 'p', function ( \DOMNode $node ) {
-	if (special_condition()) {
+	if ( special_condition() ) {
 		return new Block( 'core/paragraph', [ 'attribute' => 123 ], 'This is a paragraph' );
 	}
 
