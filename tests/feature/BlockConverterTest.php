@@ -16,6 +16,7 @@ use Mantle\Support\Str;
 use Mantle\Testing\Concerns\Refresh_Database;
 use PHPUnit\Framework\Attributes\DataProvider;
 
+use function Mantle\Support\Helpers\collect;
 use function Mantle\Testing\mock_http_response;
 
 /**
@@ -159,6 +160,7 @@ class BlockConverterTest extends Test_Case {
 
 	public function test_convert_with_filter_override_single_tag() {
 		$this->expectApplied( 'wp_block_converter_document_html' )->once();
+		$this->expectApplied( 'wp_block_converter_block' )->once()->andReturnInstanceOf( Block::class );
 
 		$html = '<p>Content to migrate</p><h1>Heading 01</h1>';
 
@@ -317,5 +319,64 @@ https://www.tiktok.com/@atribecalledval/video/7348705314746699054
 			'<!-- wp:paragraph {"attribute":"123"} --><special-tag>content here</special-tag><!-- /wp:paragraph -->',
 			$block,
 		);
+	}
+
+	/**
+	 * Test that all elements can be manually overridden with a macro.
+	 */
+	#[DataProvider( 'macroable_dataprovider' )]
+	public function test_macroable_override_built_in( string $tag ): void {
+		$is_single_tag = in_array( $tag, [ 'img', 'br', 'hr' ], true );
+
+		Block_Converter::macro(
+			$tag,
+			fn ( \DOMNode $node ) => new Block( 'core/paragraph', [], $is_single_tag ? $node->nodeName : $node->textContent ),
+		);
+
+		$block = ( new Block_Converter( $is_single_tag ? "<$tag />" : "<$tag>content here</$tag>" ) )->convert();
+
+		if ( $is_single_tag ) {
+			$this->assertEquals(
+				"<!-- wp:paragraph -->$tag<!-- /wp:paragraph -->",
+				$block,
+			);
+		} else {
+			$this->assertEquals(
+				"<!-- wp:paragraph -->content here<!-- /wp:paragraph -->",
+				$block,
+			);
+		}
+	}
+
+	public static function macroable_dataprovider(): array {
+		return collect( [
+			'ul',
+			'ol',
+			'img',
+			'blockquote',
+			'h1',
+			'h2',
+			'h3',
+			'h4',
+			'h5',
+			'h6',
+			'p',
+			'a',
+			'abbr',
+			'b',
+			'code',
+			'em',
+			'i',
+			'strong',
+			'sub',
+			'sup',
+			'span',
+			'u',
+			'figure',
+			'br',
+			'cite',
+			'source',
+			'hr',
+		] )->map_with_keys( fn ( $tag ) => [ $tag => [ $tag ] ] )->all();
 	}
 }
