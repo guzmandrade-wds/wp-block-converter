@@ -208,7 +208,7 @@ class Block_Converter {
 
 		// Recursively convert the children of the node.
 		foreach ( $node->childNodes as $child ) {
-			$child_block = $this->{$child->nodeName}( $child );
+			$child_block = $this->convert_node( $child );
 
 			if ( ! empty( $child_block ) ) {
 				$children .= $this->minify_block( (string) $child_block );
