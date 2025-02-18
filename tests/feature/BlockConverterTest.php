@@ -92,6 +92,10 @@ class BlockConverterTest extends Test_Case {
 				'<blockquote><p>Lorem ipsum</p></blockquote>',
 				'<!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>Lorem ipsum</p><!-- /wp:paragraph --></blockquote><!-- /wp:quote -->',
 			],
+			'blockquote with cite' => [
+				'<blockquote><p>Lorem ipsum</p><cite>Source</cite></blockquote>',
+				'<!-- wp:quote --><blockquote class="wp-block-quote"><!-- wp:paragraph --><p>Lorem ipsum</p><!-- /wp:paragraph --><cite>Source</cite></blockquote><!-- /wp:quote -->',
+			],
 			'non-oembed-embed' => [
 				'<embed type="video/webm" src="/media/mr-arnold.mp4" width="250" height="200" />',
 				'<!-- wp:html --><embed type="video/webm" src="/media/mr-arnold.mp4" width="250" height="200"></embed><!-- /wp:html -->',
@@ -378,5 +382,20 @@ https://www.tiktok.com/@atribecalledval/video/7348705314746699054
 			'source',
 			'hr',
 		] )->map_with_keys( fn ( $tag ) => [ $tag => [ $tag ] ] )->all();
+	}
+
+	public function test_convert_with_children(): void {
+		$html = <<<HTML
+ <blockquote><p><em>Sint sint nulla voluptate nulla adipisicing non proident excepteur duis fugiat fugiat qui minim reprehenderit. Irure adipisicing mollit ipsum eiusmod consequat reprehenderit elit anim irure deserunt in deserunt. In dolore ut quis ex quis laboris ex eu. Minim culpa cillum eu.</em></p>
+<blockquote>
+<blockquote><p><em>-proident excepteur duis fugiat fugiat qui minim reprehenderit </em></p></blockquote>
+</blockquote>
+</blockquote>
+HTML;
+
+		$block = ( new Block_Converter( $html ) )->convert();
+
+		$this->assertNotEmpty( $block );
+		$this->assertMatchesSnapshot( $block );
 	}
 }

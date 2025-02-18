@@ -208,7 +208,18 @@ class Block_Converter {
 
 		// Recursively convert the children of the node.
 		foreach ( $node->childNodes as $child ) {
-			$child_block = $this->{$child->nodeName}( $child );
+			if ( '#text' === $child->nodeName ) {
+				$children .= $child->nodeValue;
+
+				continue;
+			}
+
+			// Ensure that the cite tag is not converted to a block.
+			if ( 'cite' === strtolower( $child->nodeName ) ) {
+				$children .= trim( static::get_node_html( $child ) );
+			}
+
+			$child_block = $this->convert_node( $child );
 
 			if ( ! empty( $child_block ) ) {
 				$children .= $this->minify_block( (string) $child_block );
